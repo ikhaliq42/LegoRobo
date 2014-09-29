@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "../controls/sample.c"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -15,5 +17,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    ui->label->setText("Hi Catalina");
+    main2();
+    if (ui->label->text() == "Hi") {
+        ui->label->setText("Bye");
+    } else {
+        ui->label->setText("Hi");
+    }
 }

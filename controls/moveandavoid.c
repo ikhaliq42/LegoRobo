@@ -313,7 +313,7 @@ void timedTurn(int dir, int sec, int pwr, int dist)
 	clock_t end_time = sec * 1000 + start_time;
 	DriveMotorsRotate(dir, pwr);
 	while(clock() != end_time);
-	DriveMotorsStop()
+    DriveMotorsStop();
 }
 
 //Reverse for duration sec (in seconds) at power pwr
@@ -323,8 +323,8 @@ void timedReverse(int sec, int pwr)
 	clock_t end_time = sec * 1000 + start_time;
 	DriveMotorsStraight(1, pwr);
 	while(clock() != end_time);
-	DriveMotorsStop();	`
-{
+    DriveMotorsStop();
+}
 
 /////////////////////////////////////////////////////////////////////////
 ///// Interface Kit Setup - For IR Sensor, Whiskers and On / Off Switch
@@ -343,24 +343,25 @@ bool atSafeDistance(int sensorValue, int safeDist)
 	int dist;
 
 	dist = distanceConversion(sensorValue);
-	if (dist >= safeDist) return true else return false;
+    return dist >= safeDist;
 }
 
 // Code to respond to a detected change in the IR sensor 
 void IR_ChangeResponse(CPhidgetInterfaceKitHandle IFK, int index, int value)
 {
+    int safeDistance = 100; //TODO: get an actual value
 	int dur = 3;
 	int sensorValue;
 	
 	// get IR sensor reading
-	CPhidgetInterfaceKit_getSensorValue (IFK, index, &sensorValue)
+    CPhidgetInterfaceKit_getSensorValue (IFK, index, &sensorValue);
 
 	// keep turning until obstacle is out of trajectory
 	// initial turn is for three seconds, subsequent turns are for 1 second
-	while(!atSafeDistance(sensorValue, safeDistance)
+    while(!atSafeDistance(sensorValue, safeDistance))
 	{
-		timedTurn(dur, 30);
-		CPhidgetInterfaceKit_getSensorValue (IFK, index, &sensorValue)
+        timedTurn(dur, 30, 0, 0);
+        CPhidgetInterfaceKit_getSensorValue (IFK, index, &sensorValue);
 		dur = 1; // reduce duration for subsequent turns
 	}	
 	
@@ -371,7 +372,10 @@ void IR_ChangeResponse(CPhidgetInterfaceKitHandle IFK, int index, int value)
 // Code to respond to a detected change in the on/off switch - this will stop and start the robot
 void On_Off_SwitchChangeResponse(int value)
 {
-	if (value % 2 == 0) DriveMotorsStop() else DriveMotorsStraight(defaultDirection, defaultPower);
+    if (value % 2 == 0)
+        DriveMotorsStop();
+    else
+        DriveMotorsStraight(defaultDirection, defaultPower);
 }
 
 // Code to respond to a detected change in the whisker switches
@@ -396,6 +400,7 @@ int InputChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, 
 {
 	// show input readings
 	printf("Digital Input: %d > State: %d\n", Index, State);
+    int irIndex = 0;
 
 	// increase IR threshold temporarily in order to prevent another event from triggering
 	CPhidgetInterfaceKit_setSensorChangeTrigger(ifKit, irIndex, 10000); 
@@ -484,7 +489,7 @@ int initialiseInterfacekit()
 		CPhidget_getErrorDescription(result, &err);
 		printf("Problem waiting for attachment: %s\n", err);
 		return 0;
-	}
+    }
 
 	//Display the properties of the attached interface kit device
 	display_properties(ifKit);	
@@ -498,6 +503,8 @@ int initialiseInterfacekit()
 
 int ShutDownInterfacekit()
 {
+    CPhidgetInterfaceKitHandle ifKit = 0; //TODO: get real one
+
 	//subroutine to close the interface kit phidget and delete the objects we created
 	printf("Closing...\n");
 	CPhidget_close((CPhidgetHandle)ifKit);
@@ -527,7 +534,8 @@ int main(int argc, char* argv[]) //start moving
 {
 	InitialiseMotors();
 	initialiseInterfacekit();
-	while(true);
+	while(false);
+    printf("hello");
 	return 0;
 }
 
