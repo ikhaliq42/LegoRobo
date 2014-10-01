@@ -1,0 +1,6 @@
+controls/MotorControl.c
+controls/moveandavoid.c
+controls/sample.c
+gui/main.cpp
+gui/mainwindow.cpp
+gui/mainwindow.h
