@@ -26,8 +26,7 @@ int whisker1Index = 2;
 int whisker2Index = 3;
 int ir1Index = 3;
 int ir2Index = 4;
-int safeDistance = 25;
-int safeDistance2 = 40; 
+int safeDistance = 30;
 int defaultDirection = 0;
 int defaultPower = 100;
 int defaultTurnPower = 30;
@@ -37,7 +36,6 @@ int IanVal = 0;
 int HallCount = 0;
 bool exitFlag = false;
 int tooClose = 0;
-int tooClose2 = 0;
 int activatedWhisker = 0;
 bool turning = false;
 
@@ -379,32 +377,6 @@ bool atSafeDistance(int index, int sensorValue) {
     return dist >= safeDistance ;
 }
 
-// function to check if at the safe distance safeDist, or greater based on IR sensor reading
-bool atSafeDistance2(int index, int sensorValue) {
-	
-    //int sensor1Value;
-    //int sensor2Value;
-    //double dist1;
-    //double dist2;
-    double dist;
-
-    // get sensor readings
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensor1Value);
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir2Index, &sensor2Value);
-    // calculate distance
-    //dist1 = distanceConversion(sensor1Value);    
-    //dist2 = distanceConversion(sensor2Value);   
-    dist = distanceConversion(sensorValue);
-
-    //printf("Sensors values: >>>>>>>> %i - %i\n", sensor1Value, sensor2Value);
-    //printf("Distances from sensors: >>>>>>>> %f - %f\n", dist1, dist2);
-
-    //printf("Sensor %i value: >>>>>>>> %i \n", index, sensorValue);
-    printf("Distance from sensor %i: >>>>>>>> %f \n", index, dist);
-
-    return dist >= safeDistance2 ;
-}
-
 //callback that will run if an input changes.
 //Index - Index of the input that generated the event, State - boolean (0 or 1) representing the input state (on or off)
 int InputChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, int State) {
@@ -469,14 +441,6 @@ int SensorChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index,
         }
 	else {
            tooClose = true;
-           //printf("Getting a tad too close...\n");
-	}
-	if (atSafeDistance2(Index, Value)) {
-           tooClose2 = false;	   
-           //printf("Comfortable distance...\n");
-        }
-	else {
-           tooClose2 = true;
            //printf("Getting a tad too close...\n");
 	}
     }
@@ -588,26 +552,25 @@ int ShutDownInterfacekit() {
 void tooCloseResponse() {
 
     int sensorValue;
-    int counts = 1;
+    int counts = 9;
     int dir;
     int random = rand() ;
     
 
     // set random direction
-    dir = 0;
+    dir = random % 2;
 
     // get IR sensor reading
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensorValue);
+    CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensorValue);
 
     // keep turning until obstacle is out of trajectory   
     turning = true; 
-
     printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: %i\n", random);
-    while (tooClose2 == 1) {                 	   	
-       DriveMotorsRotate(dir, defaultTurnPower);
-     //   CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensorValue);
+    //while (!atSafeDistance(ir1Index, sensorValue)) {                 	   	
+        Turn(dir, counts, defaultTurnPower);
+    //    CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensorValue);
     //    counts = 1; // reduce duration for subsequent turns
-    }
+    //}
 
     tooClose = false;
     turning = false;    
@@ -648,7 +611,6 @@ int main() //start moving
     initialiseInterfacekit();
     DriveMotorsStraight(defaultDirection, defaultPower);
     srand((unsigned) time(&t));
-
     exitFlag = false; // just in case
     turning = false;
     while(1){
