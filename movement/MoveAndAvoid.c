@@ -8,26 +8,37 @@
 #include <phidget21.h>
 #include <time.h>
 #include <stdbool.h>
+#include<stdlib.h>
+#include "Handlers.h"
 
 ////////////////////////////////////////
 //// PARAMETERS
 //////////////////////////////////////
 // set indices for attachments - don't know these yet so these are just guesses!
 int on_off_Index = 0;
-int whisker1Index = 1;
+int on_off_Index2 = 1;
+int whisker1Index = 3;
 int whisker2Index = 2;
 
 // set other parameters
 int irIndex = 3;
 int safeDistance = 10;
 int defaultDirection = 0;
-int defaultPower = 60;
+int defaultPower = 100;
+int defaultTurnPower = 30;
 int irThreshold = 100;
+
+int IanVal = 0;
+
+int HallCount = 0;
+
+int shitHitsTheFan = 1;
+
 
 /////////////////////////////////////////////////////////////////////////
 ///// General Handlers
 /////////////////////////////////////////////////////////////////////////
-
+/*
 int AttachHandler(CPhidgetHandle phid, void *userptr) {
     int serialNo;
     const char *name;
@@ -54,7 +65,7 @@ int ErrorHandler(CPhidgetHandle phid, void *userptr, int ErrorCode, const char *
     printf("Error handled. %d - %s\n", ErrorCode, Description);
     return 0;
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////
 ///// RCX Motor setup
 ///////////////////////////////////////////////////////////////////////
@@ -197,8 +208,8 @@ int InitialiseServoMotors() {
 
 int SetServo(int position) { // 0 = Straight, 1 = rotate
     double minAccel, maxVel;
-    //CPhidgetAdvancedServo_setAcceleration(servo, 0, 182857.14);
-    //CPhidgetAdvancedServo_setVelocityLimit(servo, 0, 316);
+    CPhidgetAdvancedServo_setAcceleration(servo, 0, 182857.14);
+    CPhidgetAdvancedServo_setVelocityLimit(servo, 0, 316);
     if (position == 0) {
         CPhidgetAdvancedServo_setPosition(servo, 0, 180);
         CPhidgetAdvancedServo_setEngaged(servo, 0, 1);
@@ -307,21 +318,21 @@ int ShutDownMotors() {
 //rotate for duration sec (in seconds) at power pwr in direction dir (0 = anticlockwise, 1 = clockwise)
 
 void timedTurn(int dir, int sec, int pwr, int dist) {
-    clock_t start_time = clock();
-    clock_t end_time = sec * 1000 + start_time;
+    int start_time = HallCount;
+    int end_time = sec + start_time;
     DriveMotorsRotate(dir, pwr);
-    while (clock() != end_time);
-    DriveMotorsStop();
+    while (HallCount < end_time);
+    //DriveMotorsStop();
 }
 
 //Reverse for duration sec (in seconds) at power pwr
 
 void timedReverse(int sec, int pwr) {
-    clock_t start_time = clock();
-    clock_t end_time = sec * 1000 + start_time;
+    int start_time = HallCount;
+    int end_time = sec + start_time;
     DriveMotorsStraight(1, pwr);
-    while (clock() != end_time);
-    DriveMotorsStop();
+    while (HallCount < end_time);
+    //DriveMotorsStop();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -370,23 +381,27 @@ void IR_ChangeResponse(CPhidgetInterfaceKitHandle IFK, int index, int value) {
 // Code to respond to a detected change in the on/off switch - this will stop and start the robot
 
 void On_Off_SwitchChangeResponse(int value) {
-    if (value % 2 == 0) DriveMotorsStop();
-    else DriveMotorsStraight(defaultDirection, defaultPower);
+  //  if (value % 2 == 0) DriveMotorsStop();
+  //  else DriveMotorsStraight(defaultDirection, defaultPower);
 }
 
 // Code to respond to a detected change in the whisker switches
 
-void WhiskerChangeResponse(CPhidgetInterfaceKitHandle IFK, int index, int value) {
+void WhiskerChangeResponse() {
     // keep reversing until the whisker reading is zero
-    while (value == 1) {
+    //while (value == 1) {
         //reverse robot
-        timedReverse(1, 30);
+	printf("Reverse now please or we'll crash\n");
+        timedReverse(8, 30);
+	timedTurn(1, 9,30, 0);
+	shitHitsTheFan = 0;
+	//printf("Reverse now please or we'll crash\n");
         //read new sensor value 
-        CPhidgetInterfaceKit_getSensorValue(IFK, index, &value);
-    }
+        //CPhidgetInterfaceKit_getSensorValue(IFK, index, &value);
+    //}
 
     // next step is the same as the IR change response
-    IR_ChangeResponse(IFK, index, value);
+    //IR_ChangeResponse(IFK, index, value);
 }
 
 //callback that will run if an input changes.
@@ -396,16 +411,35 @@ int InputChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, 
     // show input readings
     printf("Digital Input: %d > State: %d\n", Index, State);
 
+	if(Index == 7){
+		HallCount ++;
+		printf("hi");
+	}
+
+	if(Index == 0){
+		IanVal = State;
+	}
+
     // increase IR threshold temporarily in order to prevent another event from triggering
     CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, irIndex, 10000);
 
     // choose correct response based on input source
-        if (Index == on_off_Index) On_Off_SwitchChangeResponse(State);            
+    if (Index == on_off_Index) {
+    	printf("On/Off switch pressed...");		
+    	On_Off_SwitchChangeResponse(State);            
+    }
 
-        if (Index == whisker1Index) WhiskerChangeResponse(IFK, Index, State);            
-
-        if (Index == whisker2Index) WhiskerChangeResponse(IFK, Index, State);
-
+    if (Index == whisker1Index  && State == 1) {
+	
+    	printf("whisker1 switch pressed...");
+		shitHitsTheFan = 1;
+	//WhiskerChangeResponse(IFK, Index, State);            
+    }
+    if (Index == whisker2Index && State == 1) {
+	shitHitsTheFan = 1;
+	printf("whisker2 switch pressed...");
+	//WhiskerChangeResponse(IFK, Index, State);
+    }
 
     // reset ir threshold to default value
     CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, irIndex, irThreshold);
@@ -471,6 +505,8 @@ int initialiseInterfacekit() {
     int result;
     const char *err;
 
+    printf("Initialising Interface kit...");
+
     //Declare an InterfaceKit handle
     CPhidgetInterfaceKitHandle ifKit = 0;
 
@@ -490,7 +526,7 @@ int initialiseInterfacekit() {
     //Registers a callback that will run if the sensor value changes by more than the OnSensorChange trig-ger.
     //Requires the handle for the IntefaceKit, the function that will be called, 
     //and an arbitrary pointer that will be supplied to the callback function (may be NULL).
-    CPhidgetInterfaceKit_set_OnSensorChange_Handler(ifKit, SensorChangeHandler, NULL);
+    //CPhidgetInterfaceKit_set_OnSensorChange_Handler(ifKit, SensorChangeHandler, NULL);
 
     //open the interfacekit for device connections
     CPhidget_open((CPhidgetHandle) ifKit, -1);
@@ -507,7 +543,7 @@ int initialiseInterfacekit() {
     display_properties_ifkit(ifKit);
 
     //Change the sensitivity trigger of the sensors
-    printf("Modifying sensor sensitivity trigger for phidget index ", irIndex);
+    printf("Modifying sensor sensitivity trigger for phidget index %i", irIndex);
     CPhidgetInterfaceKit_setSensorChangeTrigger(ifKit, irIndex, 100); //we'll just use 10 for fun	
 
     return 0;
@@ -527,11 +563,27 @@ int ShutDownInterfacekit() {
 /////////////////////////////////////////////////////////////////////////
 
 
-int main(int argc, char* argv[]) //start moving
+int main() //start moving
 {
     InitialiseMotors();
+  //  DriveMotorsStraight(defaultDirection, defaultPower);
+  //  printf("Press any key...");
+  //  getchar();
+  // DriveMotorsStop();	
+  //  printf("Press any key...");
+  //  getchar();
     initialiseInterfacekit();
-    while (true);
+	shitHitsTheFan = 0;
+	DriveMotorsStraight(defaultDirection, defaultPower);
+    while(1){
+	if (shitHitsTheFan == 1){
+	WhiskerChangeResponse();
+	DriveMotorsStraight(defaultDirection, defaultPower);
+	}
+
+    }
+    printf("\nDONE\n");
+    ShutDownInterfacekit();
+    ShutDownMotors();
     return 0;
 }
-
