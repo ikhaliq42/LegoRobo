@@ -8,40 +8,32 @@
 #include <phidget21.h>
 #include <time.h>
 #include <stdbool.h>
-#include <stdlib.h>
-#include "GeneralHandlers.h"
+#include<stdlib.h>
 
 ////////////////////////////////////////
 //// PARAMETERS
 //////////////////////////////////////
-
-// Phidget Handles
-CPhidgetInterfaceKitHandle IFK;
-CPhidgetMotorControlHandle motoControl;
+// set indices for attachments - don't know these yet so these are just guesses!
+int on_off_Index = 0;
+int on_off_Index2 = 1;
+int whisker1Index = 3;
+int whisker2Index = 2;
 
 // set other parameters
-int on_off_Index1 = 0;
-int on_off_Index2 = 1;
-int whisker1Index = 2;
-int whisker2Index = 3;
-int ir1Index = 3;
-int ir2Index = 4;
-int safeDistance = 25;
-int safeDistance2 = 40; 
+int irIndex = 3;
+int safeDistance = 10;
 int defaultDirection = 0;
 int defaultPower = 100;
 int defaultTurnPower = 30;
-int defaultReversePower = 30;
 int irThreshold = 100;
-int IanVal = 0;
-int HallCount = 0;
-bool exitFlag = false;
-int tooClose = 0;
-int tooClose2 = 0;
-int activatedWhisker = 0;
-bool turning = false;
 
-/*
+int IanVal = 0;
+
+int HallCount = 0;
+
+int shitHitsTheFan = 1;
+
+
 /////////////////////////////////////////////////////////////////////////
 ///// General Handlers
 /////////////////////////////////////////////////////////////////////////
@@ -72,10 +64,12 @@ int ErrorHandler(CPhidgetHandle phid, void *userptr, int ErrorCode, const char *
     printf("Error handled. %d - %s\n", ErrorCode, Description);
     return 0;
 }
-*/
+
 /////////////////////////////////////////////////////////////////////////
 ///// RCX Motor setup
 ///////////////////////////////////////////////////////////////////////
+
+CPhidgetMotorControlHandle motoControl = 0;
 
 int InputChangeHandlerMoto(CPhidgetMotorControlHandle MC, void *usrptr, int Index, int State) {
     printf("Input %d > State: %d\n", Index, State);
@@ -120,32 +114,28 @@ int InitialiseRCXMotors() {
     //create the motor control object
     CPhidgetMotorControl_create(&motoControl);
 
-    //Set the handlers to be run when the device is plugged in or opened from software, 
-    //unplugged or closed from software, or generates an error.
+    //Set the handlers to be run when the device is plugged in or opened from software, unplugged or closed from software, or generates an error.
     CPhidget_set_OnAttach_Handler((CPhidgetHandle) motoControl, AttachHandler, NULL);
     CPhidget_set_OnDetach_Handler((CPhidgetHandle) motoControl, DetachHandler, NULL);
     CPhidget_set_OnError_Handler((CPhidgetHandle) motoControl, ErrorHandler, NULL);
 
     //Registers a callback that will run if an input changes.
-    //Requires the handle for the Phidget, the function that will be called, 
-    //and a arbitrary pointer that will be supplied to the callback function (may be NULL).
+    //Requires the handle for the Phidget, the function that will be called, and a arbitrary pointer that will be supplied to the callback function (may be NULL).
     CPhidgetMotorControl_set_OnInputChange_Handler(motoControl, InputChangeHandlerMoto, NULL);
 
     //Registers a callback that will run if a motor changes.
-    //Requires the handle for the Phidget, the function that will be called, 
-    //and a arbitrary pointer that will be supplied to the callback function (may be NULL).
+    //Requires the handle for the Phidget, the function that will be called, and a arbitrary pointer that will be supplied to the callback function (may be NULL).
     CPhidgetMotorControl_set_OnVelocityChange_Handler(motoControl, VelocityChangeHandler, NULL);
 
     //Registers a callback that will run if the current draw changes.
-    //Requires the handle for the Phidget, the function that will be called, 
-    //and a arbitrary pointer that will be supplied to the callback function (may be NULL).
+    //Requires the handle for the Phidget, the function that will be called, and a arbitrary pointer that will be supplied to the callback function (may be NULL).
     CPhidgetMotorControl_set_OnCurrentChange_Handler(motoControl, CurrentChangeHandler, NULL);
 
     //open the motor control for device connections
     CPhidget_open((CPhidgetHandle) motoControl, -1);
 
     //get the program to wait for a motor control device to be attached
-    printf("Waiting for MotorControl to be attached....\n");
+    printf("Waiting for MotorControl to be attached....");
     if ((result = CPhidget_waitForAttachment((CPhidgetHandle) motoControl, 10000))) {
         CPhidget_getErrorDescription(result, &err);
         printf("Problem waiting for attachment: %s\n", err);
@@ -179,8 +169,7 @@ int InitialiseServoMotors() {
     //create the advanced servo object
     CPhidgetAdvancedServo_create(&servo);
 
-    //Set the handlers to be run when the device is plugged in or opened from software, 
-    //unplugged or closed from software, or generates an error.
+    //Set the handlers to be run when the device is plugged in or opened from software, unplugged or closed from software, or generates an error.
     CPhidget_set_OnAttach_Handler((CPhidgetHandle) servo, AttachHandler, NULL);
     CPhidget_set_OnDetach_Handler((CPhidgetHandle) servo, DetachHandler, NULL);
     CPhidget_set_OnError_Handler((CPhidgetHandle) servo, ErrorHandler, NULL);
@@ -194,7 +183,7 @@ int InitialiseServoMotors() {
     CPhidget_open((CPhidgetHandle) servo, -1);
 
     //get the program to wait for an advanced servo device to be attached
-    printf("Waiting for Phidget to be attached....\n");
+    printf("Waiting for Phidget to be attached....");
     if ((result = CPhidget_waitForAttachment((CPhidgetHandle) servo, 10000))) {
         CPhidget_getErrorDescription(result, &err);
         printf("Problem waiting for attachment: %s\n", err);
@@ -240,7 +229,7 @@ int DriveMotorsStraight(int dir, int power) //dir:0 = Foreward, dir:1 = Backward
         SetServo(0);
     }
     //Control the motor a bit.
-    //Step 1: increase acceleration to 50, set target speed at 100
+    //Step 1: increase acceleration to 50, set target sped at 100
     CPhidgetMotorControl_setAcceleration(motoControl, 0, 20.00);
     CPhidgetMotorControl_setAcceleration(motoControl, 1, 20.00);
     if (dir == 0) {
@@ -325,18 +314,19 @@ int ShutDownMotors() {
 ///// Advanced Drive functions
 ///////////////////////////////////////////////////////////////////////
 
-//rotate for set number of hall counts (clicks) at power pwr,
-// in direction dir (0 = anticlockwise, 1 = clockwise)
-void Turn(int dir, int clicks, int pwr) {
-    int start_count = HallCount;
-    int end_count = start_count + clicks;
+//rotate for duration sec (in seconds) at power pwr in direction dir (0 = anticlockwise, 1 = clockwise)
+
+void timedTurn(int dir, int sec, int pwr, int dist) {
+    int start_time = HallCount;
+    int end_time = sec + start_time;
     DriveMotorsRotate(dir, pwr);
-    while (HallCount < end_count);
+    while (HallCount < end_time);
     //DriveMotorsStop();
 }
 
-//Reverse for set number of hall counts (clicks) at power pwr
-void Reverse(int sec, int pwr) {
+//Reverse for duration sec (in seconds) at power pwr
+
+void timedReverse(int sec, int pwr) {
     int start_time = HallCount;
     int end_time = sec + start_time;
     DriveMotorsStraight(1, pwr);
@@ -348,72 +338,81 @@ void Reverse(int sec, int pwr) {
 ///// Interface Kit Setup - For IR Sensor, Whiskers and On / Off Switch
 /////////////////////////////////////////////////////////////////////////
 
+CPhidgetInterfaceKitHandle IFK;
+
 // distance conversion function for IR sensor
+
 double distanceConversion(int sensorValue) {
-    return 4800/(sensorValue - 20);
+    return 4800 / (sensorValue - 20);
 }
 
 // function to check if at the safe distance safeDist, or greater based on IR sensor reading
-bool atSafeDistance(int index, int sensorValue) {
-	
-    //int sensor1Value;
-    //int sensor2Value;
-    //double dist1;
-    //double dist2;
-    double dist;
 
-    // get sensor readings
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensor1Value);
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir2Index, &sensor2Value);
-    // calculate distance
-    //dist1 = distanceConversion(sensor1Value);    
-    //dist2 = distanceConversion(sensor2Value);   
+bool atSafeDistance(int sensorValue, int safeDist) {
+    int dist;
+
     dist = distanceConversion(sensorValue);
-
-    //printf("Sensors values: >>>>>>>> %i - %i\n", sensor1Value, sensor2Value);
-    //printf("Distances from sensors: >>>>>>>> %f - %f\n", dist1, dist2);
-
-    //printf("Sensor %i value: >>>>>>>> %i \n", index, sensorValue);
-    printf("Distance from sensor %i: >>>>>>>> %f \n", index, dist);
-
-    return dist >= safeDistance ;
+    if (dist >= safeDist) return true;
+    else return false;
 }
 
-// function to check if at the safe distance safeDist, or greater based on IR sensor reading
-bool atSafeDistance2(int index, int sensorValue) {
-	
-    //int sensor1Value;
-    //int sensor2Value;
-    //double dist1;
-    //double dist2;
-    double dist;
+// Code to respond to a detected change in the IR sensor 
 
-    // get sensor readings
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensor1Value);
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir2Index, &sensor2Value);
-    // calculate distance
-    //dist1 = distanceConversion(sensor1Value);    
-    //dist2 = distanceConversion(sensor2Value);   
-    dist = distanceConversion(sensorValue);
+void IR_ChangeResponse(CPhidgetInterfaceKitHandle IFK, int index, int value) {
+    int dir = 0, dur = 3, sec = 0, dist = 10; // TODO: get actual values
+    int sensorValue;
 
-    //printf("Sensors values: >>>>>>>> %i - %i\n", sensor1Value, sensor2Value);
-    //printf("Distances from sensors: >>>>>>>> %f - %f\n", dist1, dist2);
+    // get IR sensor reading
+    CPhidgetInterfaceKit_getSensorValue(IFK, index, &sensorValue);
 
-    //printf("Sensor %i value: >>>>>>>> %i \n", index, sensorValue);
-    printf("Distance from sensor %i: >>>>>>>> %f \n", index, dist);
+    // keep turning until obstacle is out of trajectory
+    // initial turn is for three seconds, subsequent turns are for 1 second
+    while (!atSafeDistance(sensorValue, safeDistance)) {
+        timedTurn(dir, sec, dur, dist);
+        CPhidgetInterfaceKit_getSensorValue(IFK, index, &sensorValue);
+        dur = 1; // reduce duration for subsequent turns
+    }
 
-    return dist >= safeDistance2 ;
+    // Continue in a straight trajectory
+    DriveMotorsStraight(defaultDirection, defaultPower);
+}
+
+// Code to respond to a detected change in the on/off switch - this will stop and start the robot
+
+void On_Off_SwitchChangeResponse(int value) {
+  //  if (value % 2 == 0) DriveMotorsStop();
+  //  else DriveMotorsStraight(defaultDirection, defaultPower);
+}
+
+// Code to respond to a detected change in the whisker switches
+
+void WhiskerChangeResponse() {
+    // keep reversing until the whisker reading is zero
+    //while (value == 1) {
+        //reverse robot
+	printf("Reverse now please or we'll crash\n");
+        timedReverse(8, 30);
+	timedTurn(1, 9,30, 0);
+	shitHitsTheFan = 0;
+	//printf("Reverse now please or we'll crash\n");
+        //read new sensor value 
+        //CPhidgetInterfaceKit_getSensorValue(IFK, index, &value);
+    //}
+
+    // next step is the same as the IR change response
+    //IR_ChangeResponse(IFK, index, value);
 }
 
 //callback that will run if an input changes.
 //Index - Index of the input that generated the event, State - boolean (0 or 1) representing the input state (on or off)
-int InputChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, int State) {
 
+int InputChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, int State) {
     // show input readings
-    //printf("Digital Input: %d > State: %d\n", Index, State);
+    printf("Digital Input: %d > State: %d\n", Index, State);
 
 	if(Index == 7){
 		HallCount ++;
+		printf("hi");
 	}
 
 	if(Index == 0){
@@ -421,68 +420,28 @@ int InputChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, 
 	}
 
     // increase IR threshold temporarily in order to prevent another event from triggering
-    //CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, ir1Index, 10000);
+    CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, irIndex, 10000);
 
     // choose correct response based on input source
-    if (Index == on_off_Index1 || Index == on_off_Index2) {
-    	printf("On/Off switch pressed...\n");		
-    	exitFlag = true;            
+    if (Index == on_off_Index) {
+    	printf("On/Off switch pressed...");		
+    	On_Off_SwitchChangeResponse(State);            
     }
 
     if (Index == whisker1Index  && State == 1) {
 	
-    	printf("whisker1 switch pressed...\n");
-	activatedWhisker = 1;
+    	printf("whisker1 switch pressed...");
+		shitHitsTheFan = 1;
 	//WhiskerChangeResponse(IFK, Index, State);            
     }
-
     if (Index == whisker2Index && State == 1) {
+	shitHitsTheFan = 1;
 	printf("whisker2 switch pressed...");
-	activatedWhisker = 2;
 	//WhiskerChangeResponse(IFK, Index, State);
     }
 
     // reset ir threshold to default value
-    //CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, ir1Index, irThreshold);
-
-    return 0;
-}
-
-
-//callback that will run if the sensor value changes by more than the OnSensorChange trigger.
-//Index - Index of the sensor that generated the event, Value - the sensor read value
-int SensorChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, int Value) {
-    // show sensor readings
-    //printf("Sensor: %d > Value: %d\n", Index, Value);
-    
-    // increase IR threshold temporarily in order to prevent another event from triggering
-    //int currentTrigger;
-    //CPhidgetInterfaceKit_getSensorChangeTrigger(IFK, ir1Index, &currentTrigger);
-    //CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, ir1Index, 10000);
-
-    // choose correct response based on sensor reading
-    if ((Index == ir1Index /*|| Index == ir2Index*/) && (Value > 80 && Value < 530)) {
-    //if (Index == ir1Index) {
-	if (atSafeDistance(Index, Value)) {
-           tooClose = false;	   
-           //printf("Comfortable distance...\n");
-        }
-	else {
-           tooClose = true;
-           //printf("Getting a tad too close...\n");
-	}
-	if (atSafeDistance2(Index, Value)) {
-           tooClose2 = false;	   
-           //printf("Comfortable distance...\n");
-        }
-	else {
-           tooClose2 = true;
-           //printf("Getting a tad too close...\n");
-	}
-    }
-
-    // reset ir threshold to default value
-    //CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, ir1Index, currentTrigger);
+    CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, irIndex, irThreshold);
 
     return 0;
 }
@@ -520,6 +479,27 @@ int display_properties_ifkit(CPhidgetInterfaceKitHandle phid)
 	return 0;
 }
 
+//callback that will run if the sensor value changes by more than the OnSensorChange trigger.
+//Index - Index of the sensor that generated the event, Value - the sensor read value
+
+int SensorChangeHandler(CPhidgetInterfaceKitHandle IFK, void *usrptr, int Index, int Value) {
+    // show sensor readings
+    printf("Sensor: %d > Value: %d\n", Index, Value);
+
+    // increase IR threshold temporarily in order to prevent another event from triggering
+    int currentTrigger;
+    CPhidgetInterfaceKit_getSensorChangeTrigger(IFK, irIndex, &currentTrigger);
+    CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, irIndex, 10000);
+
+    // choose correct response based on sensor reading
+    if (Index == irIndex) IR_ChangeResponse(IFK, Index, Value);           
+
+    // reset ir threshold to default value
+    CPhidgetInterfaceKit_setSensorChangeTrigger(IFK, irIndex, currentTrigger);
+
+    return 0;
+}
+
 int initialiseInterfacekit() {
     int result;
     const char *err;
@@ -532,8 +512,7 @@ int initialiseInterfacekit() {
     //create the InterfaceKit object
     CPhidgetInterfaceKit_create(&ifKit);
 
-    //Set the handlers to be run when the device is plugged in or opened from software, 
-    //unplugged or closed from software, or generates an error.
+    //Set the handlers to be run when the device is plugged in or opened from software, unplugged or closed from software, or generates an error.
     CPhidget_set_OnAttach_Handler((CPhidgetHandle) ifKit, AttachHandler, NULL);
     CPhidget_set_OnDetach_Handler((CPhidgetHandle) ifKit, DetachHandler, NULL);
     CPhidget_set_OnError_Handler((CPhidgetHandle) ifKit, ErrorHandler, NULL);
@@ -546,7 +525,7 @@ int initialiseInterfacekit() {
     //Registers a callback that will run if the sensor value changes by more than the OnSensorChange trig-ger.
     //Requires the handle for the IntefaceKit, the function that will be called, 
     //and an arbitrary pointer that will be supplied to the callback function (may be NULL).
-    CPhidgetInterfaceKit_set_OnSensorChange_Handler(ifKit, SensorChangeHandler, NULL);
+    //CPhidgetInterfaceKit_set_OnSensorChange_Handler(ifKit, SensorChangeHandler, NULL);
 
     //open the interfacekit for device connections
     CPhidget_open((CPhidgetHandle) ifKit, -1);
@@ -563,10 +542,8 @@ int initialiseInterfacekit() {
     display_properties_ifkit(ifKit);
 
     //Change the sensitivity trigger of the sensors
-    printf("Modifying sensor sensitivity trigger for phidget index ", ir1Index);
-    CPhidgetInterfaceKit_setSensorChangeTrigger(ifKit, ir1Index, 20);
-    printf("Modifying sensor sensitivity trigger for phidget index ", ir2Index);
-    CPhidgetInterfaceKit_setSensorChangeTrigger(ifKit, ir2Index, 50);	
+    printf("Modifying sensor sensitivity trigger for phidget index ", irIndex);
+    CPhidgetInterfaceKit_setSensorChangeTrigger(ifKit, irIndex, 100); //we'll just use 10 for fun	
 
     return 0;
 }
@@ -581,97 +558,30 @@ int ShutDownInterfacekit() {
 }
 
 /////////////////////////////////////////////////////////////////////////
-///// Responses to obstacles and user inputs
-/////////////////////////////////////////////////////////////////////////
-
-// Code to respond to a detected change in the IR sensor 
-void tooCloseResponse() {
-
-    int sensorValue;
-    int counts = 1;
-    int dir;
-    int random = rand() ;
-    
-
-    // set random direction
-    dir = 0;
-
-    // get IR sensor reading
-    //CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensorValue);
-
-    // keep turning until obstacle is out of trajectory   
-    turning = true; 
-
-    printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: %i\n", random);
-    while (tooClose2 == 1) {                 	   	
-       DriveMotorsRotate(dir, defaultTurnPower);
-     //   CPhidgetInterfaceKit_getSensorValue(IFK, ir1Index, &sensorValue);
-    //    counts = 1; // reduce duration for subsequent turns
-    }
-
-    tooClose = false;
-    turning = false;    
-
-    // Continue in a straight trajectory
-    //DriveMotorsStraight(defaultDirection, defaultPower);
-}
-
-// Code to respond to a detected change in the on/off switch - this will stop and start the robot
-//void On_Off_SwitchChangeResponse() {
-   //if (value % 2 == 0) DriveMotorsStop();
-   //else DriveMotorsStraight(defaultDirection, defaultPower);
-//   if (pause == true) DriveMotorsStop(); else DriveMotorsStraight(defaultDirection, defaultPower);
-//}
-
-// Code to respond to a detected change in the whisker switches
-void WhiskerChangeResponse() {
-
-   int counts = 9;
-
-   printf("Reverse now please or we'll crash\n");
-   Reverse(8, defaultTurnPower );
-
-   printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: %i\n", activatedWhisker);
-   Turn(activatedWhisker % 2 , counts, defaultTurnPower);
-   activatedWhisker = 0;   
-   
-}
-
-/////////////////////////////////////////////////////////////////////////
 ///// Main control loop
 /////////////////////////////////////////////////////////////////////////
 
+
 int main() //start moving
 {
-    time_t t;
     InitialiseMotors();
+  //  DriveMotorsStraight(defaultDirection, defaultPower);
+  //  printf("Press any key...");
+  //  getchar();
+  // DriveMotorsStop();	
+  //  printf("Press any key...");
+  //  getchar();
     initialiseInterfacekit();
-    DriveMotorsStraight(defaultDirection, defaultPower);
-    srand((unsigned) time(&t));
-
-    exitFlag = false; // just in case
-    turning = false;
+	shitHitsTheFan = 0;
+	DriveMotorsStraight(defaultDirection, defaultPower);
     while(1){
-
-   	if (activatedWhisker > 0) {
-		WhiskerChangeResponse();
-		DriveMotorsStraight(defaultDirection, defaultPower);
-		printf("activatedWhisker = %i",  activatedWhisker);
-	}
-	
-	if (tooClose == 1 && turning == false) {
-		tooCloseResponse();
-		DriveMotorsStraight(defaultDirection, defaultPower);
-	}
-        
-        if (exitFlag) { 
-        	printf("Exit flag detected. Breaking... \n ");
-        	break;
+	if (shitHitsTheFan == 1){
+	WhiskerChangeResponse();
+	DriveMotorsStraight(defaultDirection, defaultPower);
 	}
 
     }
     printf("\nDONE\n");
-    DriveMotorsStop();
     ShutDownInterfacekit();
     ShutDownMotors();
     return 0;
