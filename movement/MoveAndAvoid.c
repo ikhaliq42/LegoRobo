@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "GeneralHandlers.h"
+#include "RCXMotorSetup.h"
 
 ////////////////////////////////////////
 //// PARAMETERS
@@ -73,6 +74,7 @@ int ErrorHandler(CPhidgetHandle phid, void *userptr, int ErrorCode, const char *
     return 0;
 }
 */
+/*
 /////////////////////////////////////////////////////////////////////////
 ///// RCX Motor setup
 ///////////////////////////////////////////////////////////////////////
@@ -153,7 +155,7 @@ int InitialiseRCXMotors() {
     }
     return 0;
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////
 ///// Servo motor setup
 ///////////////////////////////////////////////////////////////////////
@@ -288,7 +290,7 @@ int DriveMotorsRotate(int dir, int power) //dir: 0 = antiClockwise, dir: 1 = Clo
 }
 
 int InitialiseMotors() {
-    InitialiseRCXMotors();
+    InitialiseRCXMotors(&motoControl);
     InitialiseServoMotors();
     return 0;
 }
@@ -563,9 +565,9 @@ int initialiseInterfacekit() {
     display_properties_ifkit(ifKit);
 
     //Change the sensitivity trigger of the sensors
-    printf("Modifying sensor sensitivity trigger for phidget index ", ir1Index);
+    printf("Modifying sensor sensitivity trigger for phidget index %i", ir1Index);
     CPhidgetInterfaceKit_setSensorChangeTrigger(ifKit, ir1Index, 20);
-    printf("Modifying sensor sensitivity trigger for phidget index ", ir2Index);
+    printf("Modifying sensor sensitivity trigger for phidget index %i", ir2Index);
     CPhidgetInterfaceKit_setSensorChangeTrigger(ifKit, ir2Index, 50);	
 
     return 0;

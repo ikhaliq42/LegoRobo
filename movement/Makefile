@@ -1,3 +1,3 @@
 default:
-	g++ Handlers.c MoveAndAvoid.c -o MoveAndAvoid -lphidget21
+	g++ GeneralHandlers.c RCXMotorSetup.c MoveAndAvoid.c -o MoveAndAvoid -lphidget21
 
