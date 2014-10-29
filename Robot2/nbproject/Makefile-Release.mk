@@ -35,11 +35,11 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/Globals.o \
-	${OBJECTDIR}/Robot.o \
 	${OBJECTDIR}/Handlers.o \
-	${OBJECTDIR}/Pose.o
+	${OBJECTDIR}/Pose.o \
+	${OBJECTDIR}/Robot.o \
+	${OBJECTDIR}/main.o
 
 
 # C Compiler Flags
@@ -64,32 +64,32 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/robot2: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/robot2 ${OBJECTFILES} ${LDLIBSOPTIONS} 
-
-${OBJECTDIR}/main.o: main.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/robot2 ${OBJECTFILES} ${LDLIBSOPTIONS}
 
 ${OBJECTDIR}/Globals.o: Globals.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Globals.o Globals.cpp
-
-${OBJECTDIR}/Robot.o: Robot.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Robot.o Robot.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Globals.o Globals.cpp
 
 ${OBJECTDIR}/Handlers.o: Handlers.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Handlers.o Handlers.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Handlers.o Handlers.cpp
 
 ${OBJECTDIR}/Pose.o: Pose.cpp 
 	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Pose.o Pose.cpp
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pose.o Pose.cpp
+
+${OBJECTDIR}/Robot.o: Robot.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Robot.o Robot.cpp
+
+${OBJECTDIR}/main.o: main.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
 # Subprojects
 .build-subprojects:

@@ -117,8 +117,10 @@ void gotobase(Robot *robo) {
     robo->tooCloseResponse(0);
     int p = (int) robo->poses.size() - 1 - q;
     //while(abs(robo->xa[q + p + 2] - robo->xa[q - p]) < 40 || abs(robo->ya[q+p +2] - robo->ya[q-p]) < 40){
-    double jim = pow(robo->xa[robo->poses.size() - 1] - robo->xa[robo->poses.size() - 1 - p],2) abs(robo->ya[robo->poses.size() - 1] - robo->ya[robo->poses.size() - 1 - p])
-    while(abs(robo->xa[robo->poses.size() - 1] - robo->xa[robo->poses.size() - 1 - p]) < 60 && abs(robo->ya[robo->poses.size() - 1] - robo->ya[robo->poses.size() - 1 - p]) < 60){
+    double jim = pow(robo->xa[robo->poses.size() - 1] - robo->xa[robo->poses.size() - 1 - p],2);
+//            std::abs(robo->ya[robo->poses.size() - 1] - robo->ya[robo->poses.size() - 1 - p]);
+    while(std::abs(robo->xa[robo->poses.size() - 1] - robo->xa[robo->poses.size() - 1 - p]) < 60
+            && std::abs(robo->ya[robo->poses.size() - 1] - robo->ya[robo->poses.size() - 1 - p]) < 60){
           
         robo->DriveMotorsStraight(0, 100);
         while (robo->tooClose == false ) {
@@ -131,7 +133,8 @@ void gotobase(Robot *robo) {
         //Globals::wait(100);
         p = (int) robo->poses.size() - 1 - q;
         
-        if (abs(robo->xa[robo->poses.size() - 1] - robo->xa[robo->poses.size() - 1 - p]) < 60 && abs(robo->ya[robo->poses.size() - 1] - robo->ya[robo->poses.size() - 1 - p]) < 60) {
+        if (std::abs(robo->xa[robo->poses.size() - 1] - robo->xa[robo->poses.size() - 1 - p]) < 60
+                && std::abs(robo->ya[robo->poses.size() - 1] - robo->ya[robo->poses.size() - 1 - p]) < 60) {
             robo->tooCloseResponse(0);
             printf("still in square\n");
         }
@@ -580,4 +583,5 @@ int main(int argc, char** argv) {
     //Rotate();
     return 0;
 }
+
 

@@ -14,8 +14,6 @@
 #include "Pose.h"
 #include <vector>
 
-
-
 using namespace std;
 
 
