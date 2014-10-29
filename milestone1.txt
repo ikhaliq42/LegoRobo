@@ -1,6 +1,0 @@
-My contribution:
-
-- modularised the code. The intial version of the code was put in one file. This made navigating and editing the code much harder, so we split the code into several files. The major challenge about doing this was getting used to the C programming language, as none of us had experience with it. 
-- implemented some of the rotation functionality. An early version of the code had it constanly turn left when the sensors would get activated. WE then tried to turn choosing left/right randomly; however, that increased chances of the whisker sensors getting caught in the holes in the walls. We then changed the code to turn right when the left whisker is touches an obstacle and vice-versa. If the IR sensor picks up an obstacle, it chooses randomly whether to turn left or right.
-- helped test and calibrate the robot. Calibrating the parameters for distance thresholds for the IR sensors have been detemined by manually testing the robot behaviour for various values. 
-
