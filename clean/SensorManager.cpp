@@ -10,18 +10,20 @@ SensorManager::SensorManager() {
 	// Create an InterfaceKit object
 	CPhidgetInterfaceKit_create(&interfaceKit);
 
-	CPhidget_set_OnAttach_Handler((CPhidgetHandle)interfaceKit, AttachHandler, NULL);
-	CPhidget_set_OnError_Handler((CPhidgetHandle)interfaceKit, ErrorHandler, NULL);
+	CPhidget_set_OnAttach_Handler((CPhidgetHandle)interfaceKit, SensorManager::AttachHandler, this);
+	CPhidget_set_OnError_Handler((CPhidgetHandle)interfaceKit, SensorManager::ErrorHandler, this);
 
-	CPhidgetInterfaceKit_set_OnInputChange_Handler(interfaceKit, InputChangeHandler, NULL);
-	CPhidgetInterfaceKit_set_OnSensorChange_Handler(interfaceKit, SensorChangeHandler, NULL);
+	CPhidgetInterfaceKit_set_OnInputChange_Handler(interfaceKit, SensorManager::InputChangeHandler, this);
+	CPhidgetInterfaceKit_set_OnSensorChange_Handler(interfaceKit, SensorManager::SensorChangeHandler, this);
+
+	CPhidget_open((CPhidgetHandle)interfaceKit, -1);
 
 	std::cout << "Sensors ready!" << std::endl;
 }
 
 SensorManager::~SensorManager() {
-	CPhidget_set_OnDetach_Handler((CPhidgetHandle)interfaceKit, DetachHandler, NULL);
 
+	CPhidget_set_OnDetach_Handler((CPhidgetHandle)interfaceKit, SensorManager::DetachHandler, this);
 	// Close the phidget
 	CPhidget_close((CPhidgetHandle)interfaceKit);
 	// Delete the created object
@@ -29,13 +31,13 @@ SensorManager::~SensorManager() {
 
 	std::cout << "Sensors stopped!" << std::endl;
 }
-/*
+
 int SensorManager::AttachHandler(CPhidgetHandle ifk, void* usrptr){
 	SensorManager* sm = (SensorManager*)usrptr;
 	std::cout << "Handler attached" << std::endl;
 	return 0;
 }
-*/
+
 int SensorManager::DetachHandler(CPhidgetHandle ifk, void* usrptr){
 	SensorManager* sm = (SensorManager*)usrptr;
 	std::cout << "Handler detached" << std::endl;
@@ -49,7 +51,6 @@ int SensorManager::ErrorHandler(CPhidgetHandle ifk, void* usrptr, int errorCode,
 
 int SensorManager::InputChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int state){
 	SensorManager* sm = (SensorManager*)usrptr;
-	printf("Just print something!!!");
 	if(index == SensorManager::LeftOffOn){
 		printf("Left touch sensor: %i\n", state);
 	}
@@ -66,7 +67,6 @@ int SensorManager::InputChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrp
 }
 int SensorManager::SensorChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int value){
 	SensorManager* sm = (SensorManager*)usrptr;
-	printf("Just print something!!!");
 	if(index == SensorManager::LeftIR){
 			printf("Left IR sensor: %i\n", value);
 	}
