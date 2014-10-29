@@ -2,4 +2,6 @@ movement/MoveAndAvoid
 *.orig
 *~
 Robot2/build/*
+Robot2/nbproject/*
 
+/Robot2/dist/
