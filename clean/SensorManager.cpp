@@ -32,45 +32,45 @@ SensorManager::~SensorManager() {
 	std::cout << "Sensors stopped!" << std::endl;
 }
 
-int SensorManager::AttachHandler(CPhidgetHandle ifk, void* usrptr){
+int SensorManager::AttachHandler(CPhidgetHandle ifk, void* usrptr) {
 	SensorManager* sm = (SensorManager*)usrptr;
-	std::cout << "Handler attached" << std::endl;
+	std::cout << "Sensor handlers attached" << std::endl;
 	return 0;
 }
 
-int SensorManager::DetachHandler(CPhidgetHandle ifk, void* usrptr){
+int SensorManager::DetachHandler(CPhidgetHandle ifk, void* usrptr) {
 	SensorManager* sm = (SensorManager*)usrptr;
-	std::cout << "Handler detached" << std::endl;
+	std::cout << "Sensor handlers detached" << std::endl;
 	return 0;
 }
-int SensorManager::ErrorHandler(CPhidgetHandle ifk, void* usrptr, int errorCode, const char* unknown){
+int SensorManager::ErrorHandler(CPhidgetHandle ifk, void* usrptr, int errorCode, const char* unknown) {
 	SensorManager* sm = (SensorManager*)usrptr;
 	printf("Error handled. %d - %s\n", errorCode, unknown);
 	return 0;
 }
 
-int SensorManager::InputChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int state){
+int SensorManager::InputChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int state) {
 	SensorManager* sm = (SensorManager*)usrptr;
-	if(index == SensorManager::LeftOffOn){
+	if(index == SensorManager::LeftOffOn) {
 		printf("Left touch sensor: %i\n", state);
 	}
-	if(index == SensorManager::RightOffOn){
+	if(index == SensorManager::RightOffOn) {
 		printf("Right touch sensor: %i\n", state);
 	}
-	if(index == SensorManager::LeftWhisker){
+	if(index == SensorManager::LeftWhisker) {
 		printf("Left whisker sensor: %i\n", state);
 	}
-	if(index == SensorManager::RightWhisker){
+	if(index == SensorManager::RightWhisker) {
 		printf("Right whisker sensor: %i\n", state);
 	}
 	return 0;
 }
-int SensorManager::SensorChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int value){
+int SensorManager::SensorChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int value) {
 	SensorManager* sm = (SensorManager*)usrptr;
-	if(index == SensorManager::LeftIR){
+	if(index == SensorManager::LeftIR) {
 			printf("Left IR sensor: %i\n", value);
 	}
-	if(index == SensorManager::RightIR){
+	if(index == SensorManager::RightIR) {
 			printf("Right IR sensor: %i\n", value);
 	}
 	return 0;

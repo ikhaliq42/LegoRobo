@@ -25,6 +25,7 @@ public:
 	static int AttachHandler(CPhidgetHandle ifk, void* usrptr);
 	static int DetachHandler(CPhidgetHandle ifk, void* usrptr);
 	static int ErrorHandler(CPhidgetHandle ifk, void* usrptr, int errorCode, const char* unknown);
+
 	static int InputChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int state);
 	static int SensorChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int value);
 
