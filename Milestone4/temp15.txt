@@ -1,0 +1,208 @@
+Waiting for MotorControl to be attached....
+Phidget Low Voltage Motor Controller 2-motor 4-input      41893 attached!
+Input 0 > State: 0
+Input 1 > State: 0
+Input 2 > State: 0
+Input 3 > State: 0
+PhidgetMotorControl
+Serial Number:      41893
+Version:      110
+# Inputs: 4
+# Motors: 2
+Waiting for Phidget to be attached....
+Phidget Advanced Servo Controller 1-motor     154149 attached!
+
+Waiting for interface kit to be attached....
+Phidget InterfaceKit 8/8/8     124875 attached!
+On/Off switch 1 pressed...
+On/Off switch 2 pressed...
+PhidgetInterfaceKit
+Serial Number:     124875
+Version:      901
+# Digital Inputs: 8
+# Digital Outputs: 8
+# Sensors: 8
+Ratiometric: 1
+Sensor#: 0 > Sensitivity Trigger: 10
+Sensor#: 0 > Min data rate: 1000
+Sensor#: 0 > Max data rate: 1
+Sensor#: 0 > Current data rate: 8
+Sensor#: 1 > Sensitivity Trigger: 10
+Sensor#: 1 > Min data rate: 1000
+Sensor#: 1 > Max data rate: 1
+Sensor#: 1 > Current data rate: 8
+Sensor#: 2 > Sensitivity Trigger: 10
+Sensor#: 2 > Min data rate: 1000
+Sensor#: 2 > Max data rate: 1
+Sensor#: 2 > Current data rate: 8
+Sensor#: 3 > Sensitivity Trigger: 10
+Sensor#: 3 > Min data rate: 1000
+Sensor#: 3 > Max data rate: 1
+Sensor#: 3 > Current data rate: 8
+Sensor#: 4 > Sensitivity Trigger: 10
+Sensor#: 4 > Min data rate: 1000
+Sensor#: 4 > Max data rate: 1
+Sensor#: 4 > Current data rate: 8
+Sensor#: 5 > Sensitivity Trigger: 10
+Sensor#: 5 > Min data rate: 1000
+Sensor#: 5 > Max data rate: 1
+Sensor#: 5 > Current data rate: 8
+Sensor#: 6 > Sensitivity Trigger: 10
+Sensor#: 6 > Min data rate: 1000
+Sensor#: 6 > Max data rate: 1
+Sensor#: 6 > Current data rate: 8
+Sensor#: 7 > Sensitivity Trigger: 10
+Sensor#: 7 > Min data rate: 1000
+Sensor#: 7 > Max data rate: 1
+Sensor#: 7 > Current data rate: 8
+Modifying sensor sensitivity trigger for phidget index Modifying sensor sensitivity trigger for phidget index 
+Start flag = 0
+On/Off switch 1 pressed...
+On/Off switch 1 pressed...
+-- Max dist : 0.624712 
+-- Min dist : 0.282074 
+Area1: 0.049678
+Area2: 207.923647
+Image Matrix Columns = 920
+Nope :(
+Non matches = 0
+-- Max dist : 0.611122 
+-- Min dist : 0.189725 
+Area1: 0.442717
+Area2: 39.746935
+Image Matrix Columns = 920
+Nope :(
+Non matches = 1
+-- Max dist : 0.604151 
+-- Min dist : 0.269253 
+Area1: 0.103372
+Area2: 0.200106
+Image Matrix Columns = 920
+Nope :(
+Non matches = 2
+-- Max dist : 0.647764 
+-- Min dist : 0.269325 
+Area1: 0.000009
+Area2: 0.000033
+Image Matrix Columns = 920
+Nope :(
+Non matches = 3
+-- Max dist : 0.616542 
+-- Min dist : 0.256089 
+Area1: 0.000008
+Area2: 0.000033
+Image Matrix Columns = 920
+Nope :(
+Non matches = 4
+ServoPos: 0
+Hallcount: -2
+-- Max dist : 0.607240 
+-- Min dist : 0.109929 
+Area1: 17383.463994
+Area2: 17461.221683
+Image Matrix Columns = 920
+Match
+object mid point is at: 734
+target mid point is at: 600
+here: target = 734, midP = 640, range = 600, diff = 94, degrees = 7.520000, clicks = 3
+Align: clicks = 3, clockwise...
+Image mid point = 734
+-- Max dist : 0.621394 
+-- Min dist : 0.120959 
+Area1: 16885.982916
+Area2: 17659.213205
+Image Matrix Columns = 920
+Match
+object mid point is at: 720
+target mid point is at: 600
+here: target = 720, midP = 640, range = 600, diff = 80, degrees = 6.400000, clicks = 2
+Align: clicks = 2, clockwise...
+Image mid point = 720
+-- Max dist : 0.614756 
+-- Min dist : 0.115959 
+Area1: 15795.385697
+Area2: 16142.032061
+Image Matrix Columns = 920
+Match
+object mid point is at: 643
+target mid point is at: 600
+here: target = 643, midP = 640, range = 600, diff = 3, degrees = 0.240000, clicks = 0
+ServoPos: 1
+Hallcount: -12
+whisker1 switch pressed...
+Reverse now please or we'll crash
+Final Hall count = -236
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: 1
+ServoPos: 0
+Hallcount: -236
+ServoPos: 1
+Hallcount: 0
+Error handled. 36866 - Channel 0: 15 sample overrun detected.
+Error handled. 36866 - Channel 1: 15 sample overrun detected.
+Error handled. 36866 - Channel 2: 15 sample overrun detected.
+Error handled. 36866 - Channel 3: 15 sample overrun detected.
+Error handled. 36866 - Channel 4: 15 sample overrun detected.
+Error handled. 36866 - Channel 5: 15 sample overrun detected.
+Error handled. 36866 - Channel 6: 15 sample overrun detected.
+Error handled. 36866 - Channel 7: 15 sample overrun detected.
+Error handled. 36867 - One or more data packets were lost
+whisker1 switch pressed...
+Reverse now please or we'll crash
+Final Hall count = -50
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: 1
+ServoPos: 0
+Hallcount: -50
+ServoPos: 1
+Hallcount: 0
+Error handled. 36866 - Channel 0: 15 sample overrun detected.
+Error handled. 36866 - Channel 1: 15 sample overrun detected.
+Error handled. 36866 - Channel 2: 15 sample overrun detected.
+Error handled. 36866 - Channel 3: 15 sample overrun detected.
+Error handled. 36866 - Channel 4: 15 sample overrun detected.
+Error handled. 36866 - Channel 5: 15 sample overrun detected.
+Error handled. 36866 - Channel 6: 15 sample overrun detected.
+Error handled. 36866 - Channel 7: 15 sample overrun detected.
+Error handled. 36867 - One or more data packets were lost
+whisker1 switch pressed...
+Reverse now please or we'll crash
+Final Hall count = -46
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: 1
+ServoPos: 0
+Hallcount: -46
+ServoPos: 1
+Hallcount: 0
+Error handled. 36866 - Channel 0: 15 sample overrun detected.
+Error handled. 36866 - Channel 1: 15 sample overrun detected.
+Error handled. 36866 - Channel 2: 15 sample overrun detected.
+Error handled. 36866 - Channel 3: 15 sample overrun detected.
+Error handled. 36866 - Channel 4: 15 sample overrun detected.
+Error handled. 36866 - Channel 5: 15 sample overrun detected.
+Error handled. 36866 - Channel 6: 15 sample overrun detected.
+Error handled. 36866 - Channel 7: 15 sample overrun detected.
+Error handled. 36867 - One or more data packets were lost
+whisker1 switch pressed...
+Reverse now please or we'll crash
+Final Hall count = -148
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: 1
+ServoPos: 0
+Hallcount: -148
+ServoPos: 1
+Hallcount: 0
+Error handled. 36866 - Channel 0: 15 sample overrun detected.
+Error handled. 36866 - Channel 1: 15 sample overrun detected.
+Error handled. 36866 - Channel 2: 15 sample overrun detected.
+Error handled. 36866 - Channel 3: 15 sample overrun detected.
+Error handled. 36866 - Channel 4: 15 sample overrun detected.
+Error handled. 36866 - Channel 5: 15 sample overrun detected.
+Error handled. 36866 - Channel 6: 15 sample overrun detected.
+Error handled. 36866 - Channel 7: 15 sample overrun detected.
+Error handled. 36867 - One or more data packets were lost
+whisker1 switch pressed...
+Reverse now please or we'll crash
+Final Hall count = -25
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Turning direction: 1
+ServoPos: 0
+Hallcount: -25
+ServoPos: 1
+Hallcount: 0
+FINALLY STOPPING!!!!
