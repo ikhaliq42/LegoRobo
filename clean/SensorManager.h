@@ -13,13 +13,14 @@ public:
 	enum DigitalSensor{
 		LeftOffOn = 0,
 		RightOffOn = 1,
-		LeftIR = 2,
-		RightIR = 3,
+		LeftWhisker = 2,
+		RightWhisker = 3,
 
 	};
 	enum AnalogSensor{
-		LeftWhisker = 3,
-		RightWhisker = 4
+		Sonar = 2,
+		LeftIR = 3,
+		RightIR = 4,
 	};
 
 	static int AttachHandler(CPhidgetHandle ifk, void* usrptr);
@@ -31,6 +32,7 @@ public:
 
 private:
 	CPhidgetInterfaceKitHandle interfaceKit;
+	CPhidgetInterfaceKitHandle interfaceKit2;
 };
 
 #endif /* SENSORMANAGER_H_ */

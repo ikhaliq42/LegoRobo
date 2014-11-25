@@ -51,7 +51,13 @@ void MotorManager::SetAcceleration(const double acceleration) {
 	CPhidgetMotorControl_setAcceleration(motorControl, MotorManager::RightMotor, acceleration);
 }
 
-void MotorManager::SetSpeed(const double speed) {
+void MotorManager::SetSpeedStraight(const double speed) {
+	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::LeftMotor, -speed);
+	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, speed);
+}
+
+void MotorManager::SetSpeedRotate(const double speed) {
 	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::LeftMotor, speed);
-	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, -speed);
+	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, speed);
+}
 }

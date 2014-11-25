@@ -19,7 +19,8 @@ public:
 
 
 	void SetAcceleration(const double accelertion);
-	void SetSpeed(const double speed);
+	void SetSpeedStraight(const double speed);
+	void SetSpeedRotate(const double speed);
 
 private:
 	CPhidgetMotorControlHandle motorControl;
