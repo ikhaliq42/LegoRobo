@@ -56,7 +56,12 @@ int main(int argc, char** argv) {
     //set LED to on
     CPhidgetInterfaceKit_setOutputState(ifKit, 0, 1);
 
-    printf("Press any key2...");
+    printf("Press any key2...\n");
+    getchar();
+
+    CPhidgetInterfaceKit_setOutputState(ifKit, 0, 0);
+
+    printf("Press any key to terminate...");
     getchar();
 
     //Close Phidgets
