@@ -1,0 +1,26 @@
+#!/usr/bin/expect
+
+set home [lindex $argv 0]
+set folder [lindex $argv 1]
+set file [lindex $argv 2]
+
+spawn scp $home/$folder/$file student@Carelia:$folder/
+expect "Welcome to R:SS brain brick running Tiny Core 5.4student@carelia's password:" { send "password\r" }
+#expect {
+#  -re ".*es.*o.*" {
+#      exp_send "yes\r"
+#      exp_continue
+#      }
+#  -re ".*sword.*" {
+#      send "password\r"
+#      }
+#  }
+interact
+
+
+spawn ssh -t -X student@Carelia "cd $folder && make hlo && echo 'Make done' && ./hello iron7.png && echo done"
+#; bash"
+expect "Welcome to R:SS brain brick running Tiny Core 5.4student@carelia's password:" { send "password\r" }
+
+interact
+

@@ -12,31 +12,21 @@ using namespace cv;
 
 void readme();
 
-int handleError( int status, const char* func_name,
-            const char* err_msg, const char* file_name,
-            int line, void* userdata )
-{
-    //Do nothing -- will suppress console output
-    return 0;   //Return value is not used
-}
-
 /** @function main */
 int main( int argc, char** argv )
 {
-  if( argc < 3 )
+  if( argc < 2 )
   { readme(); return -1; }
-
+  
   Mat img_object = imread( argv[1], CV_LOAD_IMAGE_GRAYSCALE );
-  Mat img_scene;// = imread( argv[2], CV_LOAD_IMAGE_GRAYSCALE );
-
-  CvCapture* capture2 = cvCaptureFromCAM( 0 );
-  Mat frame = cvQueryFrame( capture2 );
-  cvtColor(frame, img_scene, CV_BGR2GRAY);
-
-  if( !img_object.data || !img_scene.data )
-  { std::cout<< " --(!) Error reading images " << std::endl; return -1; }
-
-  //-- Step 1: Detect the keypoints using SURF Detector
+  Mat img_scene;
+  
+  cvNamedWindow("Camera_Output", 1);
+  
+  CvCapture* capture;
+  capture = cvCaptureFromCAM( 0 );
+  Mat frame;
+  // step 1 for object
   int minHessian = 400;
 
   SurfFeatureDetector detector( minHessian );
@@ -44,14 +34,44 @@ int main( int argc, char** argv )
   std::vector<KeyPoint> keypoints_object, keypoints_scene;
 
   detector.detect( img_object, keypoints_object );
+  
+  // step2 for object
+  SurfDescriptorExtractor extractor;
+  Mat descriptors_object;
+  extractor.compute( img_object, keypoints_object, descriptors_object );
+  
+  while (true) {
+        IplImage* frame2 = cvQueryFrame(capture); //Create image frames from capture
+        // Capture several frames before processing
+        for (int i = 0; i< 32; i++) {
+                frame2 = cvQueryFrame(capture);
+        }
+        cvShowImage("Camera_Output", frame2);
+        frame = cvarrToMat(frame2);
+      printf("and again\n");
+  cvtColor(frame, img_scene, CV_BGR2GRAY);
+
+  if( !img_object.data || !img_scene.data )
+  { std::cout<< " --(!) Error reading images " << std::endl; return -1; }
+
+  //-- Step 1: Detect the keypoints using SURF Detector
+  //int minHessian = 400;
+
+ // SurfFeatureDetector detector( minHessian );
+
+  //std::vector<KeyPoint> keypoints_object, keypoints_scene;
+  std::vector<KeyPoint> keypoints_scene;
+
+  //detector.detect( img_object, keypoints_object );
   detector.detect( img_scene, keypoints_scene );
 
   //-- Step 2: Calculate descriptors (feature vectors)
-  SurfDescriptorExtractor extractor;
+  //SurfDescriptorExtractor extractor;
 
-  Mat descriptors_object, descriptors_scene;
+  //Mat descriptors_object, descriptors_scene;
+  Mat  descriptors_scene;
 
-  extractor.compute( img_object, keypoints_object, descriptors_object );
+  //extractor.compute( img_object, keypoints_object, descriptors_object );
   extractor.compute( img_scene, keypoints_scene, descriptors_scene );
 
   //-- Step 3: Matching descriptor vectors using FLANN matcher
@@ -111,18 +131,25 @@ int main( int argc, char** argv )
   }
 
   //-- Draw lines between the corners (the mapped object in the scene - image_2 )
-  line( img_matches, scene_corners[0] + Point2f( img_object.cols, 0), scene_corners[1] + Point2f( img_object.cols, 0), Scalar(0, 255, 0), 4 );
+ line( img_matches, scene_corners[0] + Point2f( img_object.cols, 0), scene_corners[1] + Point2f( img_object.cols, 0), Scalar(0, 255, 0), 4 );
   line( img_matches, scene_corners[1] + Point2f( img_object.cols, 0), scene_corners[2] + Point2f( img_object.cols, 0), Scalar( 0, 255, 0), 4 );
   line( img_matches, scene_corners[2] + Point2f( img_object.cols, 0), scene_corners[3] + Point2f( img_object.cols, 0), Scalar( 0, 255, 0), 4 );
   line( img_matches, scene_corners[3] + Point2f( img_object.cols, 0), scene_corners[0] + Point2f( img_object.cols, 0), Scalar( 0, 255, 0), 4 );
 
   //-- Show detected matches
-  imshow( "Good Matches & Object detection", img_matches );
+ // imshow( "Good Matches & Object detection", img_matches );
 
-  waitKey(0);
+  
+  if (char(waitKey(100)) == 27){
+      printf("ESC key pressed...\n");
+      break; //If you hit ESC key loop will break.
+      } 
+  }
+   cvReleaseCapture(&capture); //Release capture.
+   cvDestroyWindow("Good Matches & Object detection"); //Destroy Window 
   return 0;
   }
 
   /** @function readme */
   void readme()
-  { std::cout << " Usage: ./SURF_descriptor <img1> <img2>" << std::endl; }
+  { std::cout << " Usage: ./SURF_descriptor <img1> " << std::endl; }
