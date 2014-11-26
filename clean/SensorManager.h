@@ -32,7 +32,7 @@ public:
 
 private:
 	CPhidgetInterfaceKitHandle interfaceKit;
-	CPhidgetInterfaceKitHandle interfaceKit2;
+	//CPhidgetInterfaceKitHandle interfaceKit2;
 };
 
 #endif /* SENSORMANAGER_H_ */

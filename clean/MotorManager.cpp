@@ -7,13 +7,20 @@
 MotorManager::MotorManager() {
 	// Declare a motor handle
 	motorControl = 0;
+	// Declare a Servo handle
+	servo = 0;
 	// Create a motor control object
 	CPhidgetMotorControl_create (&motorControl);
+	// Create the servo object
+	CPhidgetServo_create(&servo);
 
 	CPhidget_set_OnAttach_Handler((CPhidgetHandle)motorControl, MotorManager::AttachHandler, this);
 	CPhidget_set_OnError_Handler((CPhidgetHandle)motorControl, MotorManager::ErrorHandler, this);
 
+	// Open Motor control for device connections
 	CPhidget_open((CPhidgetHandle)motorControl, -1);
+	// Open the servo for device connections
+	CPhidget_open((CPhidgetHandle)servo, -1);
 
 	std::cout << "Motors ready!" << std::endl;
 }
@@ -25,6 +32,10 @@ MotorManager::~MotorManager() {
 	CPhidget_close((CPhidgetHandle)motorControl);
 	// Delete the created object
 	CPhidget_delete((CPhidgetHandle)motorControl);
+	// Close the servo
+	CPhidget_close((CPhidgetHandle)servo);
+	// Delete the created servo object
+	CPhidget_delete((CPhidgetHandle)servo);
 
 	std::cout << "Motors stopped!" << std::endl;
 }
@@ -51,13 +62,22 @@ void MotorManager::SetAcceleration(const double acceleration) {
 	CPhidgetMotorControl_setAcceleration(motorControl, MotorManager::RightMotor, acceleration);
 }
 
-void MotorManager::SetSpeedStraight(const double speed) {
-	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::LeftMotor, -speed);
-	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, speed);
+void MotorManager::SetSpeed(const double speed) {
+	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::LeftMotor, speed);
+	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, -speed);
+}
+
+void MotorManager::SetDirection(const Direction direction) {
+	if(direction == MotorManager::Forward) {
+		CPhidgetServo_setPosition (servo, 0, 180.00);
+	} else if(direction == MotorManager::Backward){
+		CPhidgetServo_setPosition (servo, 0, 130.00);
+	} else {
+		printf("Not a legal Direction value!");
+	}
 }
 
 void MotorManager::SetSpeedRotate(const double speed) {
 	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::LeftMotor, speed);
 	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, speed);
-}
 }

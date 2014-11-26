@@ -16,6 +16,7 @@ SensorManager::SensorManager() {
 	CPhidgetInterfaceKit_set_OnInputChange_Handler(interfaceKit, SensorManager::InputChangeHandler, this);
 	CPhidgetInterfaceKit_set_OnSensorChange_Handler(interfaceKit, SensorManager::SensorChangeHandler, this);
 
+	// Open Sensor control for device connections
 	CPhidget_open((CPhidgetHandle)interfaceKit, -1);
 	
 	std::cout << "Sensors ready!" << std::endl;
