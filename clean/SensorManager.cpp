@@ -1,8 +1,10 @@
 #include <iostream>
 #include <stdio.h>
+#include <unistd.h>
 #include <phidget21.h>
 
 #include "SensorManager.h"
+#include "MotorManager.h"
 
 SensorManager::SensorManager() {
 	// Declare an InterfaceKit handle
@@ -19,6 +21,12 @@ SensorManager::SensorManager() {
 	// Open Sensor control for device connections
 	CPhidget_open((CPhidgetHandle)interfaceKit, -1);
 	
+	sleep(2);
+	start = false;
+	stop = false;
+	leftWhiskerActivated = false;
+	rightWhiskerActivated = false;
+
 	std::cout << "Sensors ready!" << std::endl;
 }
 
@@ -52,14 +60,16 @@ int SensorManager::ErrorHandler(CPhidgetHandle ifk, void* usrptr, int errorCode,
 
 int SensorManager::InputChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int state) {
 	SensorManager* sm = (SensorManager*)usrptr;
+	MotorManager* mm = (MotorManager*)usrptr;
 	if(index == SensorManager::LeftOffOn) {
-		printf("Left touch sensor: %i\n", state);
+		sm->start = true;
 	}
 	if(index == SensorManager::RightOffOn) {
-		printf("Right touch sensor: %i\n", state);
+		sm->stop = true;
 	}
 	if(index == SensorManager::LeftWhisker) {
 		printf("Left whisker sensor: %i\n", state);
+		sm->leftWhiskerActivated = true;
 	}
 	if(index == SensorManager::RightWhisker) {
 		printf("Right whisker sensor: %i\n", state);
@@ -75,4 +85,20 @@ int SensorManager::SensorChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usr
 			printf("Right IR sensor: %i\n", value);
 	}
 	return 0;
+}
+
+bool SensorManager::getStart() {
+	return start;
+}
+
+bool SensorManager::getStop() {
+	return stop;
+}
+
+void SensorManager::resetLeftWhisker() {
+	leftWhiskerActivated = false;
+}
+
+bool SensorManager::getLeftWhisker() {
+	return leftWhiskerActivated;
 }

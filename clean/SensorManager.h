@@ -30,9 +30,17 @@ public:
 	static int InputChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int state);
 	static int SensorChangeHandler(CPhidgetInterfaceKitHandle ifk, void* usrptr, int index, int value);
 
+	bool getStart();
+	bool getStop();
+	void resetLeftWhisker();
+	bool getLeftWhisker();
+
 private:
 	CPhidgetInterfaceKitHandle interfaceKit;
-	//CPhidgetInterfaceKitHandle interfaceKit2;
+	bool start;
+	bool stop;
+	bool leftWhiskerActivated;
+	bool rightWhiskerActivated;
 };
 
 #endif /* SENSORMANAGER_H_ */

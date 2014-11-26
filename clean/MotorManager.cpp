@@ -29,6 +29,8 @@ MotorManager::MotorManager() {
 
 MotorManager::~MotorManager() {
 
+	Stop();
+
 	CPhidget_set_OnDetach_Handler((CPhidgetHandle)motorControl, MotorManager::DetachHandler, this);
 	// Close the phidget
 	CPhidget_close((CPhidgetHandle)motorControl);
