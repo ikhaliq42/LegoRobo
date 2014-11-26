@@ -12,10 +12,12 @@ MotorManager::MotorManager() {
 	// Create a motor control object
 	CPhidgetMotorControl_create (&motorControl);
 	// Create the servo object
-	CPhidgetServo_create(&servo);
+	CPhidgetAdvancedServo_create(&servo);
 
 	CPhidget_set_OnAttach_Handler((CPhidgetHandle)motorControl, MotorManager::AttachHandler, this);
+	CPhidget_set_OnAttach_Handler((CPhidgetHandle)servo, MotorManager::AttachHandler, this);
 	CPhidget_set_OnError_Handler((CPhidgetHandle)motorControl, MotorManager::ErrorHandler, this);
+	CPhidget_set_OnError_Handler((CPhidgetHandle)servo, MotorManager::ErrorHandler, this);
 
 	// Open Motor control for device connections
 	CPhidget_open((CPhidgetHandle)motorControl, -1);
@@ -33,6 +35,7 @@ MotorManager::~MotorManager() {
 	// Delete the created object
 	CPhidget_delete((CPhidgetHandle)motorControl);
 	// Close the servo
+	CPhidget_set_OnDetach_Handler((CPhidgetHandle)servo, MotorManager::DetachHandler, this);
 	CPhidget_close((CPhidgetHandle)servo);
 	// Delete the created servo object
 	CPhidget_delete((CPhidgetHandle)servo);
@@ -64,20 +67,34 @@ void MotorManager::SetAcceleration(const double acceleration) {
 
 void MotorManager::SetSpeed(const double speed) {
 	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::LeftMotor, speed);
-	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, -speed);
+	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, speed);
 }
 
 void MotorManager::SetDirection(const Direction direction) {
-	if(direction == MotorManager::Forward) {
-		CPhidgetServo_setPosition (servo, 0, 180.00);
-	} else if(direction == MotorManager::Backward){
-		CPhidgetServo_setPosition (servo, 0, 130.00);
+	if(direction == MotorManager::Forward || direction == MotorManager::Backward) {
+		CPhidgetAdvancedServo_setPosition (servo, 0, 180.00);
+		CPhidgetAdvancedServo_setEngaged(servo, 0, 1);
+	} else if(direction == MotorManager::Left || direction == MotorManager::Right){
+		CPhidgetAdvancedServo_setPosition (servo, 0, 130.00);
+		CPhidgetAdvancedServo_setEngaged(servo, 0, 1);
 	} else {
 		printf("Not a legal Direction value!");
 	}
 }
 
-void MotorManager::SetSpeedRotate(const double speed) {
-	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::LeftMotor, speed);
-	CPhidgetMotorControl_setVelocity(motorControl, MotorManager::RightMotor, speed);
+void MotorManager::Go(const Direction direction, const double speed) {
+	SetDirection(direction);
+	if(direction == MotorManager::Forward) {
+		SetSpeed(-speed);
+	} else if (direction == MotorManager::Backward) {
+		SetSpeed(speed);
+	} else if (direction == MotorManager::Left) {
+		SetSpeed(speed);
+	} else if (direction == MotorManager::Right) {
+		SetSpeed(-speed);
+	}
+}
+
+void MotorManager::Stop() {
+	SetSpeed(0.0);
 }

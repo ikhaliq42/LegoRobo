@@ -11,37 +11,37 @@ int main(int rgc, char* argv[]){
 	SensorManager sensors;
 	MotorManager motors;
 	std::cout << "Go (test sensors and motors)" << std::endl;
-
 	sleep(2);
-	motors.SetAcceleration(100.0);
-	motors.SetDirection(MotorManager::Forward);
-	motors.SetSpeed(100.0);
+
+	motors.Go(MotorManager::Forward, 100.0);
 	std::cout << "===================================" << std::endl;
 	std::cout << "Let's go forward at speed 100 :)" << std::endl;
 	std::cout << "===================================" << std::endl;
+	sleep(5);
 
-	sleep(10);
-	motors.SetDirection(MotorManager::Backward);
-	motors.SetSpeed(-50.0);
+	motors.Go(MotorManager::Backward, 100.0);
 	std::cout << "===================================" << std::endl;
-	std::cout << "Let's go backward at speed 50 :)" << std::endl;
+	std::cout << "Let's go backward at speed 100 :)" << std::endl;
 	std::cout << "===================================" << std::endl;
+	sleep(5);
 
-	sleep(10);
-	motors.SetSpeed(0.0);
+	motors.Go(MotorManager::Left, 100.0);
+	std::cout << "===================================" << std::endl;
+	std::cout << "Let's go left at speed 100 :)" << std::endl;
+	std::cout << "===================================" << std::endl;
+	sleep(5);
+
+	motors.Go(MotorManager::Right, 100.0);
+	std::cout << "===================================" << std::endl;
+	std::cout << "Let's go left at speed 100 :)" << std::endl;
+	std::cout << "===================================" << std::endl;
+	sleep(5);
+
+	motors.Stop();
 	std::cout << "===================================" << std::endl;
 	std::cout << "Let's pause the motors :)" << std::endl;
 	std::cout << "===================================" << std::endl;
 
-	/*
-	sleep(10);
-	motors.SetSpeedRotate(40.0);
-	std::cout << "Let's go rotate at speed 40 :)" << std::endl;
-
-	sleep(10);
-	motors.SetSpeedRotate(0.0);
-	std::cout << "Let's pause the motors :)" << std::endl;
-	*/
 
 	sensors.~SensorManager();
 	motors.~MotorManager();
