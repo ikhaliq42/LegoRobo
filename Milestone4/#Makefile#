@@ -1,0 +1,3 @@
+default:
+	g++ SURF.cpp -o SURF `pkg-config opencv --cflags --libs` -lphidget21
+ssh -t student@Carelia "cd Vision && make blink && echo 'made' && ./blinky && echo 'done'; bash "
